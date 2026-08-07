@@ -24,7 +24,7 @@
     <AssemblyKeyFile>.</AssemblyKeyFile>
     <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
     <RunWithWarnings>false</RunWithWarnings>
-    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
@@ -35,7 +35,7 @@
     <WarningLevel>4</WarningLevel>
     <AssemblyKeyFile>.</AssemblyKeyFile>
     <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
-    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v1.1</TargetFrameworkVersion>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
