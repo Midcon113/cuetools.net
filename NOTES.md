@@ -77,3 +77,43 @@ $msbuild = 'F:\VisualStudio\2026\Community\MSBuild\Current\Bin\MSBuild.exe'
 ### Next session
 Read CUETools.Ripper.Console\Program.cs argument parsing. Decide:
 shell out to the exe, or reference CUETools.Ripper.SCSI.dll directly.
+
+## Session 3 (2026-08-06): Ripper verified working, API understood
+
+### Verified with a real CD
+Ripped "John Barry - High Road to China" successfully.
+AccurateRip: ok. MusicBrainz: auto-identified. 0 errors, 11x, 5:16.
+Drive: N: HL-DT-ST BD-RE BH16NS40, read offset 6.
+
+### What the console ripper does NOT do
+- Only 8 switches, all about HOW to read: --paranoid --secure --burst
+  --test --quiet --drive --offset --c2mode
+- NO switch for output path, format, or per-track splitting
+- Writes ONE .wav for the whole disc + a .cue + a .log, to current directory
+- Filename hardcoded from MusicBrainz metadata (Program.cs line 198)
+- Line 261 has a commented-out FLACWriter. Author had FLAC, disabled it.
+
+### DECISION: Path B - reference the DLLs from my own app
+Do NOT modify Program.cs. Use it as reference/example code.
+My app references CUETools.Ripper.SCSI.dll etc. directly.
+
+### The core API (Program.cs ~line 260)
+audioSource.DetectGaps();
+IAudioDest audioDest = new AudioEncoder(settings, destFile);
+audioDest.FinalSampleCount = audioSource.Length;
+while (audioSource.Read(buff, -1) != 0) {
+    arVerify.Write(buff);    // AccurateRip verification
+    audioDest.Write(buff);   // encoder
+}
+audioDest.Close();
+
+KEY INSIGHT: per-track FLAC = swap audioDest when crossing a track
+boundary from audioSource.TOC[track]. IAudioDest is an interface, so
+WAV and FLAC encoders are interchangeable.
+
+Metadata comes free: meta.artist, meta.album, meta.year,
+meta.track[n].name (from MusicBrainz via CTDB).
+
+### Next session
+New C# project in VS Code. Reference the built DLLs. Get one disc
+ripping to per-track FLAC in a folder I choose.
