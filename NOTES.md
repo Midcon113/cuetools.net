@@ -39,3 +39,41 @@ CUETools.Ripper.Console can be driven programmatically by the soundtrack app.
 ## Next session
 Baseline commit, scripted v4.7 -> v4.7.2 replace across 21 .csproj files,
 then first build attempt. Success = categorized error list, not a working build.
+
+## Session 2 — COMPLETE (2026-08-06): CLEAN BUILD, 0 ERRORS
+
+### What made it work
+- Installed C++/CLI support component (needed by CUETools.Codecs.TTA only)
+- Installed .NET Framework 4.7 Developer Pack from dotnet.microsoft.com
+  -> this was the real fix. Dev18 ships no v4.7 targeting pack out of the box.
+- `msbuild CUETools.sln /t:Restore` before building (NuGet assets files)
+- REVERTED the v4.7.2 retarget (commit 858e7ae). Not needed once the
+  Developer Pack was installed, and it broke Freedb <-> CUETools.Processor.
+
+### Key lesson
+Most of this solution is SDK-style multi-targeting using <TargetFrameworks>
+(net47;net20;netstandard2.0), NOT legacy <TargetFrameworkVersion>. The
+retarget only touched 22 legacy stragglers and missed the core projects.
+Search for BOTH forms next time.
+
+### Build command (working)
+$msbuild = 'F:\VisualStudio\2026\Community\MSBuild\Current\Bin\MSBuild.exe'
+& $msbuild .\CUETools.sln /t:Restore /v:minimal
+& $msbuild .\CUETools.sln /p:Configuration=Release /p:Platform="Any CPU" /v:minimal
+
+### Binaries produced (F:\cuetools.net\bin\Release\net47\)
+- CUETools.Ripper.Console.exe   <- candidate for app automation
+- CUERipper.exe, CUERipper.WPF.exe, CUETools.exe
+- plugins\CUETools.Ripper.SCSI.dll  <- direct drive access
+- CUETools.AccurateRip.dll, CUETools.CTDB.dll, CUETools.CDImage.dll
+- plugins\CUETools.Codecs.libFLAC.dll
+
+### Open questions
+- .vdproj installer project (CUETools.CTDB.EACPlugin.Installer) never tested.
+  Don't care - want binaries, not an MSI.
+- PowerShell 5.1 Set-Content strips UTF-8 BOM. Use
+  [System.IO.File]::WriteAllText with New-Object System.Text.UTF8Encoding($true)
+
+### Next session
+Read CUETools.Ripper.Console\Program.cs argument parsing. Decide:
+shell out to the exe, or reference CUETools.Ripper.SCSI.dll directly.
